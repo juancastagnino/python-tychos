@@ -21,10 +21,10 @@ Python 3.8 or newer is required. No third-party packages are needed. Run these c
 Generate one year of samples every three hours:
 
 ```powershell
-py -3 tychos.py --start 2000-06-21 --end 2001-06-21 --step-hours 3
+py -3 tychos.py --start 2000-06-21 --end 2001-06-21 --step-hours 3 --output data/ephemeris_python.csv
 ```
 
-The default is `data/ephemeris_python.csv`; to replace an existing file add `--overwrite`. To save a different interval separately:
+The default is also `data/ephemeris_python.csv`; to replace an existing file add `--overwrite`. To save a different interval separately:
 
 ```powershell
 py -3 tychos.py --start 1800-06-21 --end 2026-06-21 --step-hours 24 --output data/long_interval.csv
@@ -39,5 +39,13 @@ To compare, export Moon, Sun and Mars from Tychosium using `uncoupled-moon`, act
 py -3 scripts/compare_tychosium.py data/ephemeris_python.csv data/tychos_ephemerides.txt
 py -3 -m unittest discover -s scripts -p "test_*.py" -v
 ```
+
+To also save the comparison in `reports`, use PowerShell's `Tee-Object` (this replaces an existing file with that name):
+
+```powershell
+py -3 scripts/compare_tychosium.py data/ephemeris_python.csv data/tychos_ephemerides.txt | Tee-Object -FilePath reports/tychosium_comparison.txt
+```
+
+The comparator does not currently have an `--output` option; `Tee-Object` displays and saves its output. JPL comparison is not yet implemented.
 
 Keep the settings, branch and date range with any baseline. A future comparison against JPL or observations must use compatible reference frames and record the reference product and uncertainties. JPL ephemerides are model-derived products informed by observations, not raw observations. The model search and reinforcement learning described as future research are not yet implemented.
