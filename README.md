@@ -39,3 +39,9 @@ This displays and saves the report. `Tee-Object` replaces an existing report of 
 ## Validation status
 
 For 2000-06-21–2001-06-21 at three-hour intervals, Moon, Sun and Mars agree with the Tychosium text export within its angular rounding precision; lunar distance differs by 0.29 km RMS. Sun and Mars distances are rounded to 0.01 AU in that export, so precise distance equivalence remains unverified. Longer intervals, higher-precision distances and consistent reference frames still need investigation. Keep settings and export configuration with each baseline.
+
+## Lunar geometry evaluator
+
+`lunar_baseline.json` contains the current node, plane, apsidal and lunar-orbit parameters. Copy it to a new JSON file before experimenting; angles are in degrees, speeds in radians per 365.2425-day model year, and radii in model units (0.01 AU). All four sections and their existing fields are required; no additional deferent or automatic optimization is implemented yet.
+
+Evaluate a configuration with `py -3 scripts/evaluate_moon.py --config lunar_baseline.json --jpl data/jpl_ephemerides.txt --output reports/moon_baseline.json`. The output will not overwrite an existing file. It records the complete parameters, JPL file hash, sample counts and RA, DEC, angular and distance mean/RMS/max, separately for historical 1800–1999, training 2000–2010 and validation 2011–2026 (UTC calendar years). Empty or partial intervals reflect the supplied data; check their counts and dates. The split is for evaluation only and no fitting is performed. Native geometric vs JPL apparent-of-date and the difference in distance conventions have the same limitations described above.

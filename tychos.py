@@ -8,6 +8,12 @@ from pathlib import Path
 AU_KM = 149_597_870.7
 EPOCH = datetime(2000, 6, 21, 12, tzinfo=timezone.utc)
 YEAR_DAYS = 365.2425
+LUNAR_DEFAULTS = {
+    'node': {'speed': -0.33780566, 'start_deg': -296.0},
+    'plane': {'tilt_x_deg': 0.1, 'tilt_z_deg': -5.2},
+    'apsidal': {'speed': 0.71015440177343, 'start_deg': 167.51, 'radius': 0.028147459454447972},
+    'orbit': {'speed': 83.28521004, 'start_deg': 318.0, 'radius': 0.25695552897999907},
+}
 
 def add(a, b):
     return tuple(x + y for x, y in zip(a, b))
@@ -30,19 +36,21 @@ def rx(v, angle):
 def phase(speed, start_deg, t):
     return speed*t - math.radians(start_deg)
 
-def positions(date):
+def positions(date, lunar_config=None):
     """World axes follow Three.js-style Y rotations; length unit = 0.01 AU."""
     t = (date - EPOCH).total_seconds() / 86400 / YEAR_DAYS
     earth_angle = phase(-0.0002479160869310127, 0, t)
     earth = ry((37.8453, 0, 0), earth_angle)
     # Nodal conjugation and inherited apsidal orientation match the plot hierarchy.
-    node = phase(-0.33780566, -296, t)
-    apsis = phase(0.71015440177343, 167.51, t)
-    moon_phase = phase(83.28521004, 318, t)
-    local_moon = ry((0.25695552897999907, 0, 0), moon_phase)
-    lunar = ry(add((0.028147459454447972, 0, 0), local_moon), apsis)
+    lunar_config = LUNAR_DEFAULTS if lunar_config is None else lunar_config
+    node_config, plane, apsidal, orbit = (lunar_config[k] for k in ('node', 'plane', 'apsidal', 'orbit'))
+    node = phase(node_config['speed'], node_config['start_deg'], t)
+    apsis = phase(apsidal['speed'], apsidal['start_deg'], t)
+    moon_phase = phase(orbit['speed'], orbit['start_deg'], t)
+    local_moon = ry((orbit['radius'], 0, 0), moon_phase)
+    lunar = ry(add((apsidal['radius'], 0, 0), local_moon), apsis)
     lunar = ry(lunar, -node)
-    lunar = ry(rx(rz(lunar, math.radians(-5.2)), math.radians(0.1)), node)
+    lunar = ry(rx(rz(lunar, math.radians(plane['tilt_z_deg'])), math.radians(plane['tilt_x_deg'])), node)
     moon = add(earth, ry(lunar, earth_angle))
     solar = add((3.3, 0, -0.645), rx(ry((100, 0, 0), 2*math.pi*t), math.radians(0.2762)))
     sun = add(earth, ry(solar, earth_angle))
