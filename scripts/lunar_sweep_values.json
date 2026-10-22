@@ -1,0 +1,8 @@
+{
+  "apsidal.radius": [0.021, 0.024, 0.026],
+  "apsidal.start_deg": [166.51, 168.51],
+  "orbit.radius": [0.25595552898, 0.25795552898],
+  "orbit.start_deg": [317.5, 318.5],
+  "plane.tilt_z_deg": [-5.1, -5.3],
+  "node.start_deg": [-295, -297]
+}
