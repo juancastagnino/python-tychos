@@ -1,0 +1,7 @@
+{
+  "node": {"speed": -0.33780566, "start_deg": -296.0},
+  "plane": {"tilt_x_deg": 0.1, "tilt_z_deg": -5.2},
+  "apsidal": {"speed": 0.71015440177343, "start_deg": 167.51, "radius": 0.014073729727223986},
+  "orbit": {"speed": 83.28521004, "start_deg": 318.0, "radius": 0.25695552897999907},
+  "solar_libration": {"amplitude_deg": 0.0}
+}

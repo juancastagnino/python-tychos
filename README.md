@@ -70,6 +70,45 @@ py -3 scripts/summarize_sweep.py reports/moon_combined_01/summary.csv --output r
 
 The output directory and Markdown report must not already exist. Candidate parameters and their complete configurations are also recorded in `details.json`. The same JPL data, intervals and limitations apply as for the individual sweep.
 
+## Experimental solar coupling and paired radial geometry
+
+The default model and `lunar_baseline.json` remain uncoupled. `lunar_solar_experiment.json` enables the hierarchy-refinement solar terms, with the experimental paired radial geometry initially disabled. Its Tychosium parity still requires verification. See `moon_research_scenarios.md` for assumptions and alternatives.
+
+```powershell
+py -3 tychos.py --start 2000-06-21 --end 2001-06-21 --step-hours 24 --lunar-config lunar_solar_experiment.json --output data/ephemeris_solar_experiment.csv
+py -3 scripts/sweep_moon.py --baseline lunar_solar_experiment.json --values scripts/paired_radial_sweep_values.json --output-dir reports/moon_paired_01
+py -3 scripts/summarize_sweep.py reports/moon_paired_01/summary.csv --output reports/moon_paired_01/summary.md
+```
+
+The paired sweep tests both signs and the solar-coupled baseline. It requires the JPL input and a new output directory.
+
+## Experimental double epicycle without equant
+
+This separate, historically inspired candidate retains the apsidal orientation but sets its center displacement to zero. It has no solar coupling or equant and is not a verified historical reconstruction; see `moon_research_scenarios.md` for its precise assumptions.
+
+```powershell
+py -3 scripts/combined_sweep_moon.py --baseline lunar_double_epicycle_experiment.json --values scripts/double_epicycle_sweep_values.json --output-dir reports/moon_double_epicycle_01
+py -3 scripts/summarize_sweep.py reports/moon_double_epicycle_01/summary.csv --output reports/moon_double_epicycle_01/summary.md
+```
+
+The four phase combinations include one baseline. Compare with the saved uncoupled baseline as well: the report's baseline is this experiment, not the previous model.
+
+A second provisional arrangement tests the reported apogee/perigee displacement ratios using a different reference-frame interpretation:
+
+```powershell
+py -3 scripts/combined_sweep_moon.py --baseline lunar_double_epicycle_02.json --values scripts/double_epicycle_02_values.json --output-dir reports/moon_double_epicycle_02
+py -3 scripts/summarize_sweep.py reports/moon_double_epicycle_02/summary.csv --output reports/moon_double_epicycle_02/summary.md
+```
+
+## Experimental solar libration
+
+This is an analytical sin(2D) rotation of the Earth–Moon vector, not a uniform-circle construction or a faithful historical reconstruction. It preserves distance but can move the Moon out of its existing inclined plane. It is disabled in the original baseline. See `moon_research_scenarios.md` for the experiment's limitations.
+
+```powershell
+py -3 scripts/sweep_moon.py --baseline lunar_solar_libration_experiment.json --values scripts/solar_libration_sweep_values.json --output-dir reports/moon_solar_libration_01
+py -3 scripts/summarize_sweep.py reports/moon_solar_libration_01/summary.csv --output reports/moon_solar_libration_01/summary.md
+```
+
 ## Validation status
 
 For 1800–2026 at daily cadence, Python and Tychosium angular results agree within text-export rounding; lunar distance differs by about 0.29 km RMS. Sun and Mars distance equivalence needs a higher-precision export. Keep settings and source data with each baseline. JPL ephemerides are model-derived products informed by observations, not raw independent observations.

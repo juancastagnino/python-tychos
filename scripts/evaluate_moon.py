@@ -14,10 +14,16 @@ from compare_jpl import read_horizons
 SPLITS = {'historical': (1800, 2000), 'train': (2000, 2011), 'validation': (2011, 2027)}
 
 def validate(config):
-    if not isinstance(config, dict) or set(config) != set(tychos.LUNAR_DEFAULTS):
-        raise ValueError('Configuration must contain exactly node, plane, apsidal and orbit')
-    for name, defaults in tychos.LUNAR_DEFAULTS.items():
-        if not isinstance(config[name], dict) or set(config[name]) != set(defaults):
+    optional = {'solar_coupling': {'eccentric_radius': 0, 'variation_radius': 0}, 'paired_radial': {'radius': 0},
+                'double_epicycle': {'first_radius': 0, 'second_radius': 0, 'first_phase_deg': 180, 'second_phase_deg': 0},
+                'solar_libration': {'amplitude_deg': 0}}
+    if not isinstance(config, dict) or not set(tychos.LUNAR_DEFAULTS) <= set(config) or set(config) - set(tychos.LUNAR_DEFAULTS) - set(optional):
+        raise ValueError('Configuration requires node, plane, apsidal and orbit; experimental sections are optional')
+    for name, defaults in {**tychos.LUNAR_DEFAULTS, **optional}.items():
+        if name not in config:
+            continue
+        allowed_extra = {'first_rate_factor', 'second_rate_factor'} if name == 'double_epicycle' else set()
+        if not isinstance(config[name], dict) or not set(defaults) <= set(config[name]) or set(config[name]) - set(defaults) - allowed_extra:
             raise ValueError(f'{name} must contain exactly: {sorted(defaults)}')
         for key, value in config[name].items():
             if isinstance(value, bool) or not isinstance(value, (float, int)) or not math.isfinite(value):
@@ -70,7 +76,7 @@ def main():
         reference = read_horizons(source, 'apparent-of-date')
         splits = evaluate(config, reference)
         if not any(s['sample_count'] for s in splits.values()): raise ValueError('No Moon samples in defined intervals')
-        result = {'model': 'uncoupled Moon; no equant or solar coupling', 'configuration': config,
+        result = {'model': 'geometric Moon; optional experimental geometries; no equant', 'configuration': config,
                   'reference': {'file': str(source), 'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
                                 'frame': 'JPL apparent-of-date vs native geometric',
                                 'warning': 'Frames and light-time conventions differ; diagnostic comparison only.'},

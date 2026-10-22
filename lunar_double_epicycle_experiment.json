@@ -1,0 +1,12 @@
+{
+  "node": {"speed": -0.33780566, "start_deg": -296.0},
+  "plane": {"tilt_x_deg": 0.1, "tilt_z_deg": -5.2},
+  "apsidal": {"speed": 0.71015440177343, "start_deg": 167.51, "radius": 0.0},
+  "orbit": {"speed": 83.28521004, "start_deg": 318.0, "radius": 0.25695552897999907},
+  "double_epicycle": {
+    "first_radius": 0.014903420680839946,
+    "second_radius": 0.007451710340419973,
+    "first_phase_deg": 180.0,
+    "second_phase_deg": 0.0
+  }
+}
