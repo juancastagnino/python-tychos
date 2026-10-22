@@ -32,10 +32,10 @@ def candidates(baseline, values):
             result.append((f'candidate_{len(result):03d}', name, value, config))
     return result
 
-def main():
+def main(candidate_factory=candidates, default_values='scripts/lunar_sweep_values.json'):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--baseline', default='lunar_baseline.json')
-    parser.add_argument('--values', default='scripts/lunar_sweep_values.json')
+    parser.add_argument('--values', default=default_values)
     parser.add_argument('--jpl', default='data/jpl_ephemerides.txt')
     parser.add_argument('--output-dir', required=True, help='New directory for results; must not already exist')
     parser.add_argument('--dry-run', action='store_true', help='List candidates without creating outputs')
@@ -43,7 +43,7 @@ def main():
     try:
         baseline = validate(json.loads(Path(args.baseline).read_text(encoding='utf-8')))
         values = json.loads(Path(args.values).read_text(encoding='utf-8'))
-        runs = candidates(baseline, values)
+        runs = candidate_factory(baseline, values)
         print(f'{len(runs)} evaluations including baseline', flush=True)
         for label, name, value, _ in runs: print(f'  {label}: {name} = {value}' if name else '  baseline', flush=True)
         if args.dry_run: return

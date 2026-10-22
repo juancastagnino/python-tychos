@@ -58,6 +58,43 @@ py -3 scripts/summarize_sweep.py reports/moon_sweep_01/summary.csv --output repo
 
 The Markdown ranks validation angular RMS and shows distance RMS separately, including changes relative to baseline. It does not pick one universally best solution. The output file must not already exist.
 
+## 7. Run a combined sweep
+
+Edit `scripts/combined_lunar_sweep_values.json` to select values. Every combination is evaluated against the unchanged baseline; the default grid contains 81 candidates plus the baseline. Preview the count before starting, as the number of combinations multiplies quickly:
+
+```powershell
+py -3 scripts/combined_sweep_moon.py --output-dir reports/moon_combined_01 --dry-run
+py -3 scripts/combined_sweep_moon.py --output-dir reports/moon_combined_01
+py -3 scripts/summarize_sweep.py reports/moon_combined_01/summary.csv --output reports/moon_combined_01/summary.md
+```
+
+The output directory and Markdown report must not already exist. Candidate parameters and their complete configurations are also recorded in `details.json`. The same JPL data, intervals and limitations apply as for the individual sweep.
+
 ## Validation status
 
 For 1800–2026 at daily cadence, Python and Tychosium angular results agree within text-export rounding; lunar distance differs by about 0.29 km RMS. Sun and Mars distance equivalence needs a higher-precision export. Keep settings and source data with each baseline. JPL ephemerides are model-derived products informed by observations, not raw independent observations.
+
+
+resume of main commands:
+
+
+python-tychos ephemerides generation:
+py -3 tychos.py --start 1800-06-21 --end 2026-06-21 --step-hours 24 --output data/ephemeris_python.csv
+
+comapre python-tychos with JPL
+py -3 scripts/compare_jpl.py data/ephemeris_python.csv data/jpl_ephemerides.txt --jpl-frame apparent-of-date --output reports/jpl_comparison.txt
+
+compare python-tychos with tychosium
+py -3 scripts/compare_tychosium.py data/ephemeris_python.csv data/tychos_ephemerides.txt | Tee-Object -FilePath reports/tychosium_comparison.txt
+
+Moon sweep univalue analysis
+py -3 scripts/sweep_moon.py --output-dir reports/moon_sweep_01 
+
+Sweep summary generation
+py -3 scripts/summarize_sweep.py reports/moon_sweep_01/summary.csv --output reports/moon_sweep_01/summary.md
+
+Combined sweep
+py -3 scripts/combined_sweep_moon.py --output-dir reports/moon_combined_01
+
+Combined summary
+py -3 scripts/summarize_sweep.py reports/moon_combined_01/summary.csv --output reports/moon_combined_01/summary.md
