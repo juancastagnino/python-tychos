@@ -46,6 +46,18 @@ To also save the comparison in `reports`, use PowerShell's `Tee-Object` (this re
 py -3 scripts/compare_tychosium.py data/ephemeris_python.csv data/tychos_ephemerides.txt | Tee-Object -FilePath reports/tychosium_comparison.txt
 ```
 
-The comparator does not currently have an `--output` option; `Tee-Object` displays and saves its output. JPL comparison is not yet implemented.
+The Tychosium comparator does not currently have an `--output` option; `Tee-Object` displays and saves its output.
+
+## Diagnostic comparison with JPL Horizons
+
+For a TSN Horizons observer bundle, place the file at `data/jpl_ephemerides.txt` and run:
+
+```powershell
+py -3 scripts/compare_jpl.py data/ephemeris_python.csv data/jpl_ephemerides.txt --jpl-frame apparent-of-date --output reports/jpl_comparison.txt
+```
+
+Use `--jpl-frame icrf` to select Horizons' ICRF RA/DEC instead. The selected reference must contain those columns. The report will not overwrite an existing file; choose another name or move the old report. The parser expects `# REQUEST BODY:` sections, Horizons CSV output and `$$SOE`/`$$EOE` markers. Ensure both files use matching geocentric observers, dates and cadence.
+
+**Important:** Python outputs native geometric coordinates; Horizons apparent-of-date and ICRF observer coordinates have different frame and apparent/astrometric conventions. No frame conversion or light-time correction is applied here. These are diagnostic differences, not a rigorously frame-matched accuracy assessment. Horizons `delta` also has observer light-time conventions that differ from the model's geometric distance.
 
 Keep the settings, branch and date range with any baseline. A future comparison against JPL or observations must use compatible reference frames and record the reference product and uncertainties. JPL ephemerides are model-derived products informed by observations, not raw observations. The model search and reinforcement learning described as future research are not yet implemented.
